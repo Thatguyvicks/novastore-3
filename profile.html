@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile | NovaStore</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .profile-container { max-width: 400px; margin: auto; text-align: center; }
+  img.profile-pic { width: 120px; height: 120px; border-radius: 50%; margin-bottom: 10px; }
+  .profile-info { text-align: left; margin-top: 20px; }
+  .logout-btn { margin-top: 20px; padding: 10px 20px; cursor: pointer; background: #4285F4; color: #fff; border: none; border-radius: 5px; }
+
+  .profile-container { 
+  max-width: 450px; 
+  margin: 50px auto; 
+  text-align: center; 
+  background: #fff; 
+  padding: 30px; 
+  border-radius: 15px; 
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+}
+.logout-btn { 
+  background: #DB4437; 
+  color: #fff; 
+  font-weight: bold; 
+  transition: 0.3s; 
+}
+.logout-btn:hover { background: #a33328; }
+pre { 
+  text-align: left; 
+  background: #f0f0f0; 
+  padding: 10px; 
+  border-radius: 10px; 
+  overflow-x: auto; 
+}
+
+</style>
+</head>
+<body>
+
+    <header class="navbar">
+  <div class="logo">NovaStore</div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search products..." />
+  </div>
+
+  <!-- Hamburger -->
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Menu links -->
+  <ul class="menu-links" id="menuLinks">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="profile.html">Profile</a></li>
+  </ul>
+</header>
+
+<div class="profile-container">
+  <h1>Your Profile</h1>
+  <img id="profilePic" class="profile-pic" src="" alt="Profile Picture">
+  <h2 id="profileName"></h2>
+  <p id="profileEmail"></p>
+
+  <div class="profile-info" id="profileInfo"></div>
+
+  <button class="logout-btn" id="logoutBtn">Logout</button>
+</div>
+
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const menuLinks = document.getElementById("menuLinks");
+
+  hamburger.addEventListener("click", () => {
+    menuLinks.classList.toggle("show");
+  });
+</script>
+
+<script>
+const profilePic = document.getElementById("profilePic");
+const profileName = document.getElementById("profileName");
+const profileEmail = document.getElementById("profileEmail");
+const profileInfo = document.getElementById("profileInfo");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// Fetch user info from backend
+fetch("http://novastore-production.up.railway.app/api/auth/status")
+  .then(res => res.json())
+  .then(data => {
+    if (!data.loggedIn) {
+      window.location.href = "/shop.html"; // redirect if not logged in
+      return;
+    }
+
+    const user = data.user; // req.user from backend
+    const info = user._json || user;
+
+    profilePic.src = info.picture || "";
+    profileName.textContent = info.name || "";
+    profileEmail.textContent = info.email || "";
+
+    // Display clean info
+    profileInfo.innerHTML = `
+      <p>First Name: ${info.given_name}</p>
+      <p>Last Name: ${info.family_name}</p>
+      <p>Email Verified: ${info.email_verified ? "Yes" : "No"}</p>
+    `;
+  });
+
+// Logout
+logoutBtn.onclick = () => {
+  window.location.href = "http://novastore-production.up.railway.app/logout";
+};
+</script>
+
+
+</body>
+</html>

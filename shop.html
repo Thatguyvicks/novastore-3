@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shop | Online Store</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* Floating login/logout button */
+  #authFloatingBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #000000;
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    z-index: 999;
+  }
+  #authFloatingBtn.hide { display: none; }
+
+  /* Product grid */
+  .shop-container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 20px; 
+    padding: 20px; 
+  }
+
+  .product-card { 
+    border: 1px solid #ccc; 
+    padding: 10px; 
+    text-align: center; 
+    border-radius: 8px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .product-card img { 
+    width: 100%; 
+    height: 150px; 
+    object-fit: cover; 
+    border-radius: 5px; 
+    margin-bottom: 10px;
+  }
+
+  .add-to-cart-btn { 
+    margin-top: 10px; 
+    padding: 6px 10px; 
+    cursor: pointer; 
+    background: #28a745; 
+    color: #fff; 
+    border: none; 
+    border-radius: 5px; 
+  }
+
+  /* Cart notification */
+  #cart-notification { 
+    position: fixed; 
+    bottom: 80px; 
+    right: 20px; 
+    background: #333; 
+    color: #fff; 
+    padding: 10px 15px; 
+    border-radius: 8px; 
+    opacity: 0; 
+    transition: opacity 0.3s; 
+    z-index: 999; 
+  }
+  #cart-notification.show { opacity: 1; }
+
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .shop-container {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    .product-card img { height: 120px; }
+  }
+</style>
+
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">NovaStore</div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search products..." />
+  </div>
+
+  <!-- Hamburger -->
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Menu links -->
+  <ul class="menu-links" id="menuLinks">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="profile.html">Profile</a></li>
+  </ul>
+</header>
+
+<section class="shop-container" id="productContainer"></section>
+
+<div id="cart-notification">Item added to cart!</div>
+
+<button id="authFloatingBtn">Login with Google</button>
+
+<script>
+// ---------- Floating Login / Logout Button ----------
+const authBtn = document.getElementById("authFloatingBtn");
+
+// Check login status from backend
+fetch("http://novastore-production.up.railway.app/api/auth/status")
+  .then(res => res.json())
+  .then(data => {
+    if (data.loggedIn) {
+      authBtn.textContent = "Logout";
+      authBtn.onclick = () => window.location.href = "http://novastore-production.up.railway.app/logout";
+    } else {
+      authBtn.textContent = "Login with Google";
+      authBtn.onclick = () => window.location.href = "http://novastore-production.up.railway.app/auth/google";
+    }
+  });
+
+// ---------- Dynamic Product Loading ----------
+const productContainer = document.getElementById("productContainer");
+
+fetch("http://novastore-production.up.railway.app/api/products")
+  .then(res => res.json())
+  .then(products => {
+    productContainer.innerHTML = products.map(p => `
+      <div class="product-card" 
+        data-name="${p.name}" 
+        data-price="${p.price}" 
+        data-img="${p.img}">
+        <img src="${p.img}" class="product-img">
+        <h3 class="product-title">${p.name}</h3>
+        <p class="product-price">$${p.price}</p>
+        <button class="add-to-cart-btn">Add to Cart</button>
+      </div>
+    `).join("");
+
+
+    // Attach Add to Cart buttons
+    const addBtns = document.querySelectorAll(".add-to-cart-btn");
+    addBtns.forEach(btn => btn.addEventListener("click", () => addToCart(btn)));
+  })
+  .catch(err => console.error("Error loading products", err));
+
+// ---------- Add to Cart Function ----------
+function addToCart(button) {
+  const card = button.closest(".product-card");
+  const name = card.dataset.name;
+  const price = card.dataset.price;
+  const img = card.dataset.img;
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.push({ name, price, img });
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  const notification = document.getElementById("cart-notification");
+  notification.textContent = name + " added to cart!";
+  notification.classList.add("show");
+
+  setTimeout(() => notification.classList.remove("show"), 2000);
+}
+
+// ---------- Search Functionality ----------
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.toLowerCase();
+  document.querySelectorAll(".product-card").forEach(card => {
+    const name = card.dataset.name.toLowerCase();
+    if (name.includes(query)) card.style.display = "block";
+    else card.style.display = "none";
+  });
+});
+
+// ---------- Hamburger Menu ----------
+const hamburger = document.getElementById("hamburger");
+const menuLinks = document.getElementById("menuLinks");
+hamburger.addEventListener("click", () => menuLinks.classList.toggle("show"));
+</script>
+
+</body>
+</html>

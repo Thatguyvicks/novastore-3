@@ -1,0 +1,320 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+  </head>
+  <body>
+
+   <header class="navbar">
+  <div class="logo">NovaStore</div>
+
+ 
+
+
+  <!-- Hamburger -->
+  <div class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Menu links -->
+  <ul class="menu-links" id="menuLinks">
+    <li><a href="shop.html">Shop</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="index.html">Home</a></li>
+  </ul>
+</header>
+
+  <h2 class="cart-title">Your Cart</h2>
+
+<div class="cart-layout">
+
+  <!-- CART ITEMS -->
+  <div id="cart-container"></div>
+
+  <!-- Existing cart summary -->
+<div id="cart-summary">
+  <h3>Order Summary</h3>
+
+  <div class="summary-row">
+    <span>Total Items</span>
+    <span id="item-count">0</span>
+  </div>
+
+  <div class="summary-row total">
+    <span>Total Price</span>
+    <span id="total-price">$0</span>
+  </div>
+  <button class="checkout-btn" id="open-checkout">Proceed to Checkout</button>
+
+<!-- Notification popup -->
+<div id="cart-notification"></div>
+
+</div>
+
+<!-- Checkout Button -->
+<button id="open-checkout">Checkout</button>
+
+<!-- Checkout Modal -->
+<div id="checkout-overlay">
+  <div class="checkout-popup">
+    <span class="close-popup" id="close-checkout">&times;</span>
+    <h2>Checkout</h2>
+
+    <div id="checkout-summary">
+      <p>Total Items: <span id="popup-item-count">0</span></p>
+      <p>Total Price: <span id="popup-total-price">$0</span></p>
+    </div>
+
+    <div class="payment-methods">
+      <h3>Select Payment Method</h3>
+      <label class="payment-card">
+        <input type="radio" name="payment" value="card" checked>
+        Credit/Debit Card
+      </label>
+      <label class="payment-card">
+        <input type="radio" name="payment" value="paypal">
+        PayPal
+      </label>
+      <label class="payment-card">
+        <input type="radio" name="payment" value="cash">
+        Cash on Delivery
+      </label>
+    </div>
+
+    <button id="pay-btn">Pay Now</button>
+  </div>
+</div>
+
+<style>
+/* ---------- Overlay ---------- */
+#checkout-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  display:flex; justify-content:center; align-items:center;
+  opacity:0; pointer-events:none; transition: opacity 0.3s ease; z-index:1000;
+}
+#checkout-overlay.show { opacity:1; pointer-events:auto; }
+
+/* ---------- Popup ---------- */
+.checkout-popup {
+  background: rgba(255, 255, 255, 0.15); /* semi-transparent white */
+  backdrop-filter: blur(10px);          /* blur effect behind popup */
+  -webkit-backdrop-filter: blur(10px);  /* Safari support */
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.3); /* subtle border */
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  transform: translateY(-50px) scale(0.95);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+  position: relative;
+  font-family: 'Arial', sans-serif;
+  color: #000;
+}
+
+#checkout-overlay.show .checkout-popup { transform:translateY(0) scale(1); opacity:1; }
+
+/* ---------- Close Button ---------- */
+.close-popup { position:absolute; top:15px; right:20px; font-size:24px; font-weight:bold; color:#000; cursor:pointer; transition: transform 0.2s, color 0.2s; }
+.close-popup:hover { color:#ff3b3b; transform:rotate(90deg); }
+
+/* ---------- Headings ---------- */
+.checkout-popup h2 { text-align:center; font-size:24px; margin-bottom:20px; color:#000; }
+.checkout-popup h3 { font-size:18px; margin:15px 0 10px 0; color:#000; }
+
+/* ---------- Summary ---------- */
+#checkout-summary { background:#f5f5f5; border-radius:15px; padding:15px; margin-bottom:20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); animation: fadeIn 0.5s ease forwards; }
+#checkout-summary p { font-size:16px; margin:8px 0; color:#333; }
+
+/* ---------- Payment Methods ---------- */
+.payment-card {
+  display:flex; align-items:center; gap:10px; padding:12px 18px; border:1px solid #ddd;
+  border-radius:15px; margin-bottom:10px; cursor:pointer; transition: all 0.3s ease;
+  background:#fafafa; transform:scale(0.95); opacity:0; animation: fadeSlide 0.4s forwards;
+}
+.payment-card:nth-child(1){ animation-delay:0.1s; }
+.payment-card:nth-child(2){ animation-delay:0.2s; }
+.payment-card:nth-child(3){ animation-delay:0.3s; }
+.payment-card:hover { background:#f0f0f0; border-color:#000; transform:scale(1.02); }
+.payment-card input[type="radio"]{ accent-color:#000; transform:scale(1.2); }
+
+/* ---------- Pay Button ---------- */
+#pay-btn{ width:100%; padding:12px; background:#000; color:#fff; border:none; border-radius:15px; font-size:16px; cursor:pointer; margin-top:15px; transition: background 0.3s, transform 0.2s; }
+#pay-btn:hover{ background:#333; transform:translateY(-3px) scale(1.02); }
+
+/* ---------- Animations ---------- */
+@keyframes fadeSlide { 0%{ opacity:0; transform:translateX(-20px) scale(0.95); } 100%{ opacity:1; transform:translateX(0) scale(1); } }
+@keyframes fadeIn { 0%{ opacity:0; transform:translateY(-10px); } 100%{ opacity:1; transform:translateY(0); } }
+
+/* ---------- Mobile ---------- */
+@media (max-width:480px){ .checkout-popup{ padding:20px; } #checkout-summary p, .payment-card{ font-size:14px; } #pay-btn{ font-size:14px; } }
+</style>
+
+<script>
+document.getElementById("open-checkout").onclick = function() {
+  document.getElementById("checkout-overlay").classList.add("show");
+};
+document.getElementById("close-checkout").onclick = function() {
+  document.getElementById("checkout-overlay").classList.remove("show");
+};
+document.getElementById("checkout-overlay").onclick = function(e) {
+  if(e.target === this) this.classList.remove("show");
+};
+</script>
+
+
+
+<script>
+// Notification function
+function showNotification(message) {
+  const notification = document.getElementById('cart-notification');
+  notification.textContent = message;
+  notification.classList.add('show');
+
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 2000);
+}
+
+// Cart container elements
+const cartContainer = document.getElementById('cart-container');
+const totalPriceEl = document.getElementById('total-price');
+const itemCountEl = document.getElementById('item-count');
+
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// Render cart items
+function renderCart() {
+  cartContainer.innerHTML = "";
+  let total = 0;
+
+  if (cart.length === 0) {
+    cartContainer.innerHTML = "<p>Your cart is empty</p>";
+    totalPriceEl.textContent = "$0";
+    itemCountEl.textContent = "0";
+
+    // Animated notification
+    showNotification("Your cart is empty!");
+    return;
+  }
+
+  cart.forEach((item, index) => {
+    total += Number(item.price);
+
+    cartContainer.innerHTML += `
+      <div class="cart-card">
+        <div class="cart-item-info">
+          <img src="${item.img}" alt="${item.name}" class="cart-item-img">
+          <div>
+            <h3>${item.name}</h3>
+            <p>$${item.price}</p>
+          </div>
+        </div>
+        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+      </div>
+    `;
+  });
+
+  totalPriceEl.textContent = "$" + total;
+  itemCountEl.textContent = cart.length;
+}
+
+// Remove item function
+function removeItem(index) {
+  const removedItem = cart[index].name; // get name for notification
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  renderCart();
+  
+  // Show animated notification for removed item
+  showNotification(removedItem + " removed from cart");
+}
+
+// Add to cart function (from shop page)
+function addToCart(button) {
+  const card = button.closest('.product-card');
+  const name = card.dataset.name;
+  const price = card.dataset.price;
+  const img = card.dataset.img;
+
+  cart.push({ name, price, img });
+  localStorage.setItem('cart', JSON.stringify(cart));
+
+  renderCart(); // update cart
+
+  // Animated notification for added item
+  showNotification(name + " added to cart!");
+}
+
+// Initial render
+renderCart();
+</script>
+
+
+<script>
+const openCheckout = document.getElementById('open-checkout');
+const closeCheckout = document.getElementById('close-checkout');
+const overlay = document.getElementById('checkout-overlay');
+
+// Elements inside popup
+const popupItemCount = document.getElementById('popup-item-count');
+const popupTotalPrice = document.getElementById('popup-total-price');
+const payBtn = document.getElementById('pay-btn');
+
+// Open popup
+openCheckout.addEventListener('click', () => {
+  if(cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+
+  // Populate popup totals
+  let total = 0;
+  cart.forEach(item => total += Number(item.price));
+
+  popupItemCount.textContent = cart.length;
+  popupTotalPrice.textContent = "$" + total;
+
+  overlay.style.display = "flex"; // show popup
+});
+
+// Close popup
+closeCheckout.addEventListener('click', () => {
+  overlay.style.display = "none";
+});
+
+// Cashout process simulation
+payBtn.addEventListener('click', () => {
+  let total = 0;
+  cart.forEach(item => total += Number(item.price));
+
+  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+  alert(`You chose ${paymentMethod} and will pay $${total}.`);
+
+  // Optional: clear cart after payment
+  localStorage.removeItem('cart');
+  overlay.style.display = "none";
+  location.reload(); // refresh page to update cart
+});
+</script>
+
+<script>
+  const hamburger = document.getElementById("hamburger");
+  const menuLinks = document.getElementById("menuLinks");
+
+  hamburger.addEventListener("click", () => {
+    menuLinks.classList.toggle("show");
+  });
+</script>
+  </body>
+  </html>
+  
