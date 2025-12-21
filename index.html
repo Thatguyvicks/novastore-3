@@ -1,31 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NovaStore | Home</title>
-  <link rel="stylesheet" href="style.css"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>NovaStore | Home</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  
- <header class="navbar">
-  <div class="logo">NovaStore</div>
 
-  <!-- Search -->
+<header class="navbar">
+  <div class="logo">NovaStore</div>
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Search products..." />
-    
   </div>
-
-
-  <!-- Hamburger -->
   <div class="hamburger" id="hamburger">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
   </div>
-
-  <!-- Menu links -->
   <ul class="menu-links" id="menuLinks">
     <li><a href="shop.html">Shop</a></li>
     <li><a href="cart.html">Cart</a></li>
@@ -34,123 +24,54 @@
   </ul>
 </header>
 
-  <main class="landing-wrapper">
-
-   
-
-  <!-- HERO SECTION -->
+<main class="landing-wrapper">
   <section class="intro-section">
     <div class="intro-text">
       <h1>Smart Tech for Modern Living</h1>
       <p>Discover premium gadgets designed to make your life easier.</p>
       <a href="shop.html" class="primary-cta">Explore Store</a>
     </div>
-
     <div class="intro-visual">
       <img src="xiaomi-removebg-preview.png" alt="Featured products">
     </div>
   </section>
-
-  <!-- TRUST / STATS -->
-  <section class="trust-strip">
-    <div class="trust-box">
-      <h2>10k+</h2>
-      <span>Happy Customers</span>
-    </div>
-    <div class="trust-box">
-      <h2>500+</h2>
-      <span>Products</span>
-    </div>
-    <div class="trust-box">
-      <h2>24/7</h2>
-      <span>Support</span>
-    </div>
-  </section>
-
-  <!-- FEATURED CATEGORIES -->
-  <section class="category-showcase">
-    <h2 class="section-title">Popular Categories</h2>
-
-    <div class="category-grid">
-      <div class="category-tile">Audio</div>
-      <div class="category-tile">Wearables</div>
-      <div class="category-tile">Accessories</div>
-      <div class="category-tile">Gaming</div>
-    </div>
-  </section>
-
-  <!-- PROMO -->
-  <section class="promo-banner">
-    <h2>Seasonal Deals Up to 40% Off</h2>
-    <p>Limited offers on best-selling products</p>
-    <a href="shop.html" class="secondary-cta">Shop Deals</a>
-  </section>
-
 </main>
 
-   <button id="authFloatingBtn" class="auth-floating-btn">Login with Google</button>
-
-
-
-<div class="auth-modal" id="authModal">
-  <div class="auth-box">
-    <span class="close-auth" id="closeAuth">&times;</span>
-    <h2>Continue</h2>
-
-    <button class="google-btn" id="googleAuthBtn">
-      Continue with Google
-    </button>
-
-    <p class="auth-note">
-      Secure login powered by Google
-    </p>
-  </div>
-</div>
-
-
-<script>
-const searchBtn = document.getElementById("searchBtn");
-const searchInput = document.getElementById("searchInput");
-
-searchBtn.addEventListener("click", runSearch);
-searchInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") runSearch();
-});
-
-function runSearch() {
-  const query = searchInput.value.toLowerCase().trim();
-
-  if (!query) return;
-
-  // Page-based search
-  if (query.includes("shop") || query.includes("product")) {
-    window.location.href = "shop.html";
-  } else if (query.includes("cart")) {
-    window.location.href = "cart.html";
-  } else if (query.includes("contact") || query.includes("support")) {
-    window.location.href = "contact.html";
-  } else {
-    // Default: send to shop with query
-    window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
-  }
-}
-</script>
-<script>
-  const hamburger = document.getElementById("hamburger");
-  const menuLinks = document.getElementById("menuLinks");
-
-  hamburger.addEventListener("click", () => {
-    menuLinks.classList.toggle("show");
-  });
-</script>
+<button id="authFloatingBtn">Login with Google</button>
 
 <script>
 const authBtn = document.getElementById("authFloatingBtn");
+const API_BASE = "https://novastore-production.up.railway.app";
 
-authBtn.onclick = () => {
-  window.location.href = "http://novastore-production.up.railway.app/auth/google";
-};
+// Google login / logout
+fetch(`${API_BASE}/api/auth/status`, { credentials: "include" })
+  .then(res => res.json())
+  .then(data => {
+    if (data.loggedIn) {
+      authBtn.textContent = "Logout";
+      authBtn.onclick = () => window.location.href = `${API_BASE}/logout`;
+    } else {
+      authBtn.textContent = "Login with Google";
+      authBtn.onclick = () => window.location.href = `${API_BASE}/auth/google`;
+    }
+  });
+
+// Hamburger toggle
+document.getElementById("hamburger").addEventListener("click", () => {
+  document.getElementById("menuLinks").classList.toggle("show");
+});
+
+// Optional: search functionality
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const query = searchInput.value.toLowerCase();
+    if (query.includes("shop") || query.includes("product")) window.location.href = "shop.html";
+    else if (query.includes("cart")) window.location.href = "cart.html";
+    else window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+  }
+});
 </script>
-
 </body>
 </html>
+
