@@ -43,10 +43,12 @@
 const authBtn = document.getElementById("authFloatingBtn");
 const API_BASE = "https://novastore-production.up.railway.app";
 
-// Google login / logout
-fetch(`${API_BASE}/api/auth/status`, { credentials: "include" })
-  .then(res => res.json())
-  .then(data => {
+// Check login status
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/status`, { credentials: "include" });
+    const data = await res.json();
+
     if (data.loggedIn) {
       authBtn.textContent = "Logout";
       authBtn.onclick = () => window.location.href = `${API_BASE}/logout`;
@@ -54,24 +56,25 @@ fetch(`${API_BASE}/api/auth/status`, { credentials: "include" })
       authBtn.textContent = "Login with Google";
       authBtn.onclick = () => window.location.href = `${API_BASE}/auth/google`;
     }
-  });
+  } catch (err) {
+    console.error("Auth check failed:", err);
+  }
+}
+
+checkAuth();
 
 // Hamburger toggle
 document.getElementById("hamburger").addEventListener("click", () => {
   document.getElementById("menuLinks").classList.toggle("show");
 });
 
-// Optional: search functionality
-const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("keypress", (e) => {
+// Search functionality
+document.getElementById("searchInput").addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
-    const query = searchInput.value.toLowerCase();
-    if (query.includes("shop") || query.includes("product")) window.location.href = "shop.html";
-    else if (query.includes("cart")) window.location.href = "cart.html";
-    else window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+    const query = e.target.value.toLowerCase();
+    window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
   }
 });
 </script>
 </body>
 </html>
-
