@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -59,9 +59,18 @@
       <p>Total Price: <span id="popup-total-price">$0</span></p>
     </div>
 
-    <!-- FORM -->
     <form id="order-form" action="https://formspree.io/f/mykgdrpn" method="POST">
-      <input type="email" name="email" placeholder="Your email" required>
+
+      <div class="email-field">
+        <label for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+        >
+      </div>
 
       <input type="hidden" name="order_items" id="order-items">
       <input type="hidden" name="total_price" id="order-total">
@@ -72,125 +81,45 @@
 
         <label class="payment-card">
           <input type="radio" name="payment" value="Card" checked>
-          Credit / Debit Card
+          <span>
+            <strong>Card</strong>
+            <small>Pay with debit or credit card</small>
+          </span>
         </label>
 
         <label class="payment-card">
-          <input type="radio" name="payment" value="PayPal">
-          PayPal
+          <input type="radio" name="payment" value="Bank Transfer">
+          <span>
+            <strong>Bank Transfer</strong>
+            <small>Pay via bank transfer</small>
+          </span>
         </label>
 
-        <label class="payment-card">
-          <input type="radio" name="payment" value="Cash on Delivery">
-          Cash on Delivery
-        </label>
+        <div class="transfer-details" id="transferDetails">
+          <p><strong>Bank:</strong> Opay</p>
+          <p><strong>Account Name:</strong>Emmanuella Oyiridiya Madukwe</p>
+          <p><strong>Account Number:</strong> 6423027710</p>
+
+          <label class="transfer-confirm">
+            <input type="checkbox" id="transferConfirmed">
+            I have completed the bank transfer
+          </label>
+
+          <p class="transfer-note">
+            Please confirm after sending the money.
+          </p>
+        </div>
       </div>
 
-      <button type="button" id="pay-btn">Place Order</button>
+      <button type="button" id="pay-btn" class="pay-btn">
+        Place Order
+      </button>
+
     </form>
   </div>
 </div>
 
-<script>
-const cartContainer = document.getElementById("cart-container");
-const totalPriceEl = document.getElementById("total-price");
-const itemCountEl = document.getElementById("item-count");
-
-const popupItemCount = document.getElementById("popup-item-count");
-const popupTotalPrice = document.getElementById("popup-total-price");
-
-const overlay = document.getElementById("checkout-overlay");
-const openCheckout = document.getElementById("open-checkout");
-const closeCheckout = document.getElementById("close-checkout");
-const payBtn = document.getElementById("pay-btn");
-
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-function showNotification(message) {
-  const n = document.getElementById("cart-notification");
-  n.textContent = message;
-  n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 2000);
-}
-
-function renderCart() {
-  cartContainer.innerHTML = "";
-  let total = 0;
-
-  if (cart.length === 0) {
-    cartContainer.innerHTML = "<p>Your cart is empty</p>";
-    totalPriceEl.textContent = "$0";
-    itemCountEl.textContent = "0";
-    return;
-  }
-
-  cart.forEach((item, index) => {
-    total += Number(item.price);
-    cartContainer.innerHTML += `
-      <div class="cart-card">
-        <div class="cart-item-info">
-          <img src="${item.img}" class="cart-item-img">
-          <div>
-            <h3>${item.name}</h3>
-            <p>$${item.price}</p>
-          </div>
-        </div>
-        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
-      </div>
-    `;
-  });
-
-  totalPriceEl.textContent = "$" + total;
-  itemCountEl.textContent = cart.length;
-}
-
-function removeItem(index) {
-  const name = cart[index].name;
-  cart.splice(index, 1);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  renderCart();
-  showNotification(`${name} removed`);
-}
-
-openCheckout.onclick = () => {
-  if (cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  let total = cart.reduce((sum, item) => sum + Number(item.price), 0);
-  popupItemCount.textContent = cart.length;
-  popupTotalPrice.textContent = "$" + total;
-
-  overlay.classList.add("show");
-};
-
-closeCheckout.onclick = () => overlay.classList.remove("show");
-
-payBtn.onclick = () => {
-  let orderText = "";
-  let total = 0;
-
-  cart.forEach((item, i) => {
-    orderText += `${i + 1}. ${item.name} - $${item.price}\n`;
-    total += Number(item.price);
-  });
-
-  document.getElementById("order-items").value = orderText;
-  document.getElementById("order-total").value = "$" + total;
-  document.getElementById("order-payment").value =
-    document.querySelector('input[name="payment"]:checked').value;
-
-  document.getElementById("order-form").submit();
-  localStorage.removeItem("cart");
-};
-
-renderCart();
-
-const hamburger = document.getElementById("hamburger");
-const menuLinks = document.getElementById("menuLinks");
-hamburger.onclick = () => menuLinks.classList.toggle("show");
-</script>
+<script src="cart.js"></script>
 
 </body>
 </html>
