@@ -1,66 +1,54 @@
   <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-  </head>
-  <body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ella's | Cart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-   <header class="navbar">
-  <div class="logo">NovaStore</div>
+<header class="navbar">
+  <div class="logo">Ella's</div>
 
- 
-
-
-  <!-- Hamburger -->
   <div class="hamburger" id="hamburger">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
   </div>
 
-  <!-- Menu links -->
   <ul class="menu-links" id="menuLinks">
+    <li><a href="index.html">Home</a></li>
     <li><a href="shop.html">Shop</a></li>
     <li><a href="cart.html">Cart</a></li>
     <li><a href="contact.html">Contact</a></li>
-    <li><a href="index.html">Home</a></li>
   </ul>
 </header>
 
-  <h2 class="cart-title">Your Cart</h2>
+<h2 class="cart-title">Your Cart</h2>
 
 <div class="cart-layout">
 
-  <!-- CART ITEMS -->
   <div id="cart-container"></div>
 
-  <!-- Existing cart summary -->
-<div id="cart-summary">
-  <h3>Order Summary</h3>
+  <div id="cart-summary">
+    <h3>Order Summary</h3>
 
-  <div class="summary-row">
-    <span>Total Items</span>
-    <span id="item-count">0</span>
+    <div class="summary-row">
+      <span>Total Items</span>
+      <span id="item-count">0</span>
+    </div>
+
+    <div class="summary-row total">
+      <span>Total Price</span>
+      <span id="total-price">$0</span>
+    </div>
+
+    <button class="checkout-btn" id="open-checkout">Proceed to Checkout</button>
   </div>
-
-  <div class="summary-row total">
-    <span>Total Price</span>
-    <span id="total-price">$0</span>
-  </div>
-  <button class="checkout-btn" id="open-checkout">Proceed to Checkout</button>
-
-<!-- Notification popup -->
-<div id="cart-notification"></div>
-
 </div>
 
-<!-- Checkout Button -->
-<button id="open-checkout">Checkout</button>
+<div id="cart-notification"></div>
 
-<!-- Checkout Modal -->
+<!-- CHECKOUT MODAL -->
 <div id="checkout-overlay">
   <div class="checkout-popup">
     <span class="close-popup" id="close-checkout">&times;</span>
@@ -71,60 +59,60 @@
       <p>Total Price: <span id="popup-total-price">$0</span></p>
     </div>
 
-    <div class="payment-methods">
-      <h3>Select Payment Method</h3>
-      <label class="payment-card">
-        <input type="radio" name="payment" value="card" checked>
-        Credit/Debit Card
-      </label>
-      <label class="payment-card">
-        <input type="radio" name="payment" value="paypal">
-        PayPal
-      </label>
-      <label class="payment-card">
-        <input type="radio" name="payment" value="cash">
-        Cash on Delivery
-      </label>
-    </div>
+    <!-- FORM -->
+    <form id="order-form" action="https://formspree.io/f/abcdwxyz" method="POST">
+      <input type="email" name="email" placeholder="Your email" required>
 
-    <button id="pay-btn">Pay Now</button>
+      <input type="hidden" name="order_items" id="order-items">
+      <input type="hidden" name="total_price" id="order-total">
+      <input type="hidden" name="payment_method" id="order-payment">
+
+      <div class="payment-methods">
+        <h3>Payment Method</h3>
+
+        <label class="payment-card">
+          <input type="radio" name="payment" value="Card" checked>
+          Credit / Debit Card
+        </label>
+
+        <label class="payment-card">
+          <input type="radio" name="payment" value="PayPal">
+          PayPal
+        </label>
+
+        <label class="payment-card">
+          <input type="radio" name="payment" value="Cash on Delivery">
+          Cash on Delivery
+        </label>
+      </div>
+
+      <button type="button" id="pay-btn">Place Order</button>
+    </form>
   </div>
 </div>
 
 <script>
-document.getElementById("open-checkout").onclick = function() {
-  document.getElementById("checkout-overlay").classList.add("show");
-};
-document.getElementById("close-checkout").onclick = function() {
-  document.getElementById("checkout-overlay").classList.remove("show");
-};
-document.getElementById("checkout-overlay").onclick = function(e) {
-  if(e.target === this) this.classList.remove("show");
-};
-</script>
+const cartContainer = document.getElementById("cart-container");
+const totalPriceEl = document.getElementById("total-price");
+const itemCountEl = document.getElementById("item-count");
 
+const popupItemCount = document.getElementById("popup-item-count");
+const popupTotalPrice = document.getElementById("popup-total-price");
 
+const overlay = document.getElementById("checkout-overlay");
+const openCheckout = document.getElementById("open-checkout");
+const closeCheckout = document.getElementById("close-checkout");
+const payBtn = document.getElementById("pay-btn");
 
-<script>
-// Notification function
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
 function showNotification(message) {
-  const notification = document.getElementById('cart-notification');
-  notification.textContent = message;
-  notification.classList.add('show');
-
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 2000);
+  const n = document.getElementById("cart-notification");
+  n.textContent = message;
+  n.classList.add("show");
+  setTimeout(() => n.classList.remove("show"), 2000);
 }
 
-// Cart container elements
-const cartContainer = document.getElementById('cart-container');
-const totalPriceEl = document.getElementById('total-price');
-const itemCountEl = document.getElementById('item-count');
-
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-// Render cart items
 function renderCart() {
   cartContainer.innerHTML = "";
   let total = 0;
@@ -133,19 +121,15 @@ function renderCart() {
     cartContainer.innerHTML = "<p>Your cart is empty</p>";
     totalPriceEl.textContent = "$0";
     itemCountEl.textContent = "0";
-
-    // Animated notification
-    showNotification("Your cart is empty!");
     return;
   }
 
   cart.forEach((item, index) => {
     total += Number(item.price);
-
     cartContainer.innerHTML += `
       <div class="cart-card">
         <div class="cart-item-info">
-          <img src="${item.img}" alt="${item.name}" class="cart-item-img">
+          <img src="${item.img}" class="cart-item-img">
           <div>
             <h3>${item.name}</h3>
             <p>$${item.price}</p>
@@ -160,94 +144,53 @@ function renderCart() {
   itemCountEl.textContent = cart.length;
 }
 
-// Remove item function
 function removeItem(index) {
-  const removedItem = cart[index].name; // get name for notification
+  const name = cart[index].name;
   cart.splice(index, 1);
-  localStorage.setItem('cart', JSON.stringify(cart));
+  localStorage.setItem("cart", JSON.stringify(cart));
   renderCart();
-  
-  // Show animated notification for removed item
-  showNotification(removedItem + " removed from cart");
+  showNotification(`${name} removed`);
 }
 
-// Add to cart function (from shop page)
-function addToCart(button) {
-  const card = button.closest('.product-card');
-  const name = card.dataset.name;
-  const price = card.dataset.price;
-  const img = card.dataset.img;
-
-  cart.push({ name, price, img });
-  localStorage.setItem('cart', JSON.stringify(cart));
-
-  renderCart(); // update cart
-
-  // Animated notification for added item
-  showNotification(name + " added to cart!");
-}
-
-// Initial render
-renderCart();
-</script>
-
-
-<script>
-const openCheckout = document.getElementById('open-checkout');
-const closeCheckout = document.getElementById('close-checkout');
-const overlay = document.getElementById('checkout-overlay');
-
-// Elements inside popup
-const popupItemCount = document.getElementById('popup-item-count');
-const popupTotalPrice = document.getElementById('popup-total-price');
-const payBtn = document.getElementById('pay-btn');
-
-// Open popup
-openCheckout.addEventListener('click', () => {
-  if(cart.length === 0) {
+openCheckout.onclick = () => {
+  if (cart.length === 0) {
     alert("Your cart is empty!");
     return;
   }
 
-  // Populate popup totals
-  let total = 0;
-  cart.forEach(item => total += Number(item.price));
-
+  let total = cart.reduce((sum, item) => sum + Number(item.price), 0);
   popupItemCount.textContent = cart.length;
   popupTotalPrice.textContent = "$" + total;
 
-  overlay.style.display = "flex"; // show popup
-});
+  overlay.classList.add("show");
+};
 
-// Close popup
-closeCheckout.addEventListener('click', () => {
-  overlay.style.display = "none";
-});
+closeCheckout.onclick = () => overlay.classList.remove("show");
 
-// Cashout process simulation
-payBtn.addEventListener('click', () => {
+payBtn.onclick = () => {
+  let orderText = "";
   let total = 0;
-  cart.forEach(item => total += Number(item.price));
 
-  const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-
-  alert(`You chose ${paymentMethod} and will pay $${total}.`);
-
-  // Optional: clear cart after payment
-  localStorage.removeItem('cart');
-  overlay.style.display = "none";
-  location.reload(); // refresh page to update cart
-});
-</script>
-
-<script>
-  const hamburger = document.getElementById("hamburger");
-  const menuLinks = document.getElementById("menuLinks");
-
-  hamburger.addEventListener("click", () => {
-    menuLinks.classList.toggle("show");
+  cart.forEach((item, i) => {
+    orderText += `${i + 1}. ${item.name} - $${item.price}\n`;
+    total += Number(item.price);
   });
+
+  document.getElementById("order-items").value = orderText;
+  document.getElementById("order-total").value = "$" + total;
+  document.getElementById("order-payment").value =
+    document.querySelector('input[name="payment"]:checked').value;
+
+  document.getElementById("order-form").submit();
+  localStorage.removeItem("cart");
+};
+
+renderCart();
+
+const hamburger = document.getElementById("hamburger");
+const menuLinks = document.getElementById("menuLinks");
+hamburger.onclick = () => menuLinks.classList.toggle("show");
 </script>
-  </body>
-  </html>
-  
+
+</body>
+</html>
