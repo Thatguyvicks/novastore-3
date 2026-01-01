@@ -7,7 +7,7 @@ const itemCountEl = document.getElementById("item-count");
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-// Notification
+// Notification function
 function showNotification(message) {
   const n = document.getElementById("cart-notification");
   n.textContent = message;
@@ -47,13 +47,13 @@ function renderCart() {
   itemCountEl.textContent = cart.length;
 }
 
-// Remove item
+// Remove item from cart
 function removeItem(index) {
   const name = cart[index].name;
   cart.splice(index, 1);
   localStorage.setItem("cart", JSON.stringify(cart));
   renderCart();
-  showNotification(`${name} removed`);
+  showNotification(`${name} removed from cart`);
 }
 
 renderCart();
@@ -87,22 +87,19 @@ function updatePayButton() {
   }
 }
 
-// Event listeners for payment method change
+// Update pay button on payment change
 paymentRadios.forEach(radio => {
   radio.addEventListener("change", updatePayButton);
 });
 
-// Event listener for transfer confirmation checkbox
+// Update pay button on transfer confirmation checkbox change
 transferCheckbox.addEventListener("change", updatePayButton);
 
 updatePayButton();
 
-// Open checkout
+// Open checkout overlay
 openCheckout.onclick = () => {
-  if (cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
+  if (cart.length === 0) return; // do nothing if cart empty
 
   let total = cart.reduce((sum, item) => sum + Number(item.price), 0);
   popupItemCount.textContent = cart.length;
@@ -111,57 +108,39 @@ openCheckout.onclick = () => {
   overlay.classList.add("show");
 };
 
-// Close checkout
+// Close checkout overlay
 closeCheckout.onclick = () => overlay.classList.remove("show");
 overlay.onclick = (e) => {
   if (e.target === overlay) overlay.classList.remove("show");
 };
 
 /* ==========================
-      PLACE ORDER
+      PLACE ORDER (Formspree)
 =========================== */
-payBtn.onclick = async () => {
+payBtn.onclick = () => {
   const email = document.getElementById("email").value;
-  if (!email) {
-    alert("Please enter your email");
-    return;
-  }
+  if (!email) return; // do nothing if empty
 
-  const items = cart.map((item, i) => `${i + 1}. ${item.name} - $${item.price}`);
+  const items = cart.map((item, i) => `${i + 1}. ${item.name} - $${item.price}`).join("\n");
   const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
   const payment = document.querySelector('input[name="payment"]:checked').value;
   const transferConfirmed = payment === "Bank Transfer" ? transferCheckbox.checked : true;
 
-  if (payment === "Bank Transfer" && !transferConfirmed) {
-    alert("Please confirm your bank transfer");
-    return;
-  }
+  if (payment === "Bank Transfer" && !transferConfirmed) return; // do nothing if not confirmed
 
-  try {
-    const response = await fetch("https://novastore-production.up.railway.app/api/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        items,
-        total: "$" + total,
-        payment,
-        transferConfirmed
-      })
-    });
+  // Fill hidden form inputs for Formspree
+  document.getElementById("order-items").value = items;
+  document.getElementById("order-total").value = "$" + total;
+  document.getElementById("order-payment").value = payment;
 
-    const data = await response.json();
+  // Submit Formspree form
+  document.getElementById("order-form").submit();
 
-    if (data.success) {
-      localStorage.removeItem("cart");
-      window.location.href = "orders.html";
-    } else {
-      alert("Order failed. Try again.");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong. Try again.");
-  }
+  // Clear cart after submission
+  localStorage.removeItem("cart");
+
+  // Inline notification
+  showNotification("Order submitted successfully!");
 };
 
 /* ==========================
