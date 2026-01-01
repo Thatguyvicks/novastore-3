@@ -5,11 +5,10 @@
 <title>Profile | NovaStore</title>
 <link rel="stylesheet" href="style.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 </head>
 <body>
 
-    <header class="navbar">
+<header class="navbar">
   <div class="logo">NovaStore</div>
 
   <!-- Search -->
@@ -46,6 +45,7 @@
 </div>
 
 <script>
+  // Hamburger menu toggle
   const hamburger = document.getElementById("hamburger");
   const menuLinks = document.getElementById("menuLinks");
 
@@ -55,42 +55,64 @@
 </script>
 
 <script>
-const profilePic = document.getElementById("profilePic");
-const profileName = document.getElementById("profileName");
-const profileEmail = document.getElementById("profileEmail");
-const profileInfo = document.getElementById("profileInfo");
-const logoutBtn = document.getElementById("logoutBtn");
+  // ====== CONFIG ======
+  // Change this to your backend URL (production)
+  const API_URL = "https://novastore-production.up.railway.app";
 
-// Fetch user info from backend
-fetch("http://novastore-production.up.railway.app/api/auth/status")
-  .then(res => res.json())
-  .then(data => {
-    if (!data.loggedIn) {
-      window.location.href = "/shop.html"; // redirect if not logged in
-      return;
+  const profilePic = document.getElementById("profilePic");
+  const profileName = document.getElementById("profileName");
+  const profileEmail = document.getElementById("profileEmail");
+  const profileInfo = document.getElementById("profileInfo");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // Fetch user info from backend
+  async function loadProfile() {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/status`, {
+        method: "GET",
+        credentials: "include", // important if backend uses cookies/session
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch profile");
+
+      const data = await res.json();
+
+      if (!data.loggedIn) {
+        window.location.href = "/shop.html"; // redirect if not logged in
+        return;
+      }
+
+      const user = data.user;
+      const info = user._json || user;
+
+      profilePic.src = info.picture || "";
+      profileName.textContent = info.name || "";
+      profileEmail.textContent = info.email || "";
+
+      profileInfo.innerHTML = `
+        <p>First Name: ${info.given_name || "N/A"}</p>
+        <p>Last Name: ${info.family_name || "N/A"}</p>
+        <p>Email Verified: ${info.email_verified ? "Yes" : "No"}</p>
+      `;
+
+    } catch (err) {
+      console.error("Error loading profile:", err);
+      profileName.textContent = "Failed to load profile";
+      profileEmail.textContent = "";
+      profileInfo.innerHTML = "";
     }
+  }
 
-    const user = data.user; // req.user from backend
-    const info = user._json || user;
+  loadProfile();
 
-    profilePic.src = info.picture || "";
-    profileName.textContent = info.name || "";
-    profileEmail.textContent = info.email || "";
-
-    // Display clean info
-    profileInfo.innerHTML = `
-      <p>First Name: ${info.given_name}</p>
-      <p>Last Name: ${info.family_name}</p>
-      <p>Email Verified: ${info.email_verified ? "Yes" : "No"}</p>
-    `;
-  });
-
-// Logout
-logoutBtn.onclick = () => {
-  window.location.href = "http://novastore-production.up.railway.app/logout";
-};
+  // Logout
+  logoutBtn.onclick = () => {
+    window.location.href = `${API_URL}/logout`;
+  };
 </script>
-
 
 </body>
 </html>
