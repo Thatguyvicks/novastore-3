@@ -5,65 +5,6 @@
 <title>Shop | NovaStore</title>
 <link rel="stylesheet" href="style.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  /* Floating login/logout button */
-  #authFloatingBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #000;
-    color: #fff;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    z-index: 999;
-  }
-  #cart-notification {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    background: #333;
-    color: #fff;
-    padding: 10px 15px;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 999;
-  }
-  #cart-notification.show { opacity: 1; }
-  .shop-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px;
-    padding: 20px;
-  }
-  .product-card {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .product-card img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
-  .add-to-cart-btn {
-    margin-top: 10px;
-    padding: 6px 10px;
-    cursor: pointer;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-  }
-</style>
 </head>
 <body>
 
@@ -84,7 +25,8 @@
   </ul>
 </header>
 
-<section class="shop-container" id="productContainer"></section>
+<main class="shop-container" id="productContainer"></main>
+
 <div id="cart-notification">Item added to cart!</div>
 <button id="authFloatingBtn">Login with Google</button>
 
@@ -92,10 +34,11 @@
 const authBtn = document.getElementById("authFloatingBtn");
 const API_BASE = "https://novastore-production.up.railway.app";
 
-// Check login status
-fetch(`${API_BASE}/api/auth/status`, { credentials: "include" })
-  .then(res => res.json())
-  .then(data => {
+// Google login/logout
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/status`, { credentials: "include" });
+    const data = await res.json();
     if (data.loggedIn) {
       authBtn.textContent = "Logout";
       authBtn.onclick = () => window.location.href = `${API_BASE}/logout`;
@@ -103,22 +46,29 @@ fetch(`${API_BASE}/api/auth/status`, { credentials: "include" })
       authBtn.textContent = "Login with Google";
       authBtn.onclick = () => window.location.href = `${API_BASE}/auth/google`;
     }
-  });
+  } catch (err) {
+    console.error("Auth check failed:", err);
+  }
+}
+checkAuth();
 
-// Load products
-const productContainer = document.getElementById("productContainer");
-fetch(`${API_BASE}/api/products`)
-  .then(res => res.json())
-  .then(products => {
-    productContainer.innerHTML = products.map(p => `
+// Load products dynamically
+async function loadProducts() {
+  try {
+    const res = await fetch(`${API_BASE}/api/products`);
+    const products = await res.json();
+    const container = document.getElementById("productContainer");
+
+    container.innerHTML = products.map(p => `
       <div class="product-card" data-name="${p.name}" data-price="${p.price}" data-img="${p.img}">
-        <img src="${p.img}" class="product-img">
+        <img src="${p.img}" alt="${p.name}">
         <h3>${p.name}</h3>
         <p>$${p.price}</p>
         <button class="add-to-cart-btn">Add to Cart</button>
       </div>
     `).join("");
 
+    // Add-to-cart functionality
     document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const card = btn.closest(".product-card");
@@ -131,17 +81,22 @@ fetch(`${API_BASE}/api/products`)
         setTimeout(() => notification.classList.remove("show"), 2000);
       });
     });
-  });
 
-// Search functionality
-document.getElementById("searchInput").addEventListener("input", () => {
-  const query = document.getElementById("searchInput").value.toLowerCase();
+  } catch (err) {
+    console.error("Failed to load products:", err);
+  }
+}
+loadProducts();
+
+// Search products
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  const query = e.target.value.toLowerCase();
   document.querySelectorAll(".product-card").forEach(card => {
     card.style.display = card.dataset.name.toLowerCase().includes(query) ? "block" : "none";
   });
 });
 
-// Hamburger toggle
+// Hamburger menu
 document.getElementById("hamburger").addEventListener("click", () => {
   document.getElementById("menuLinks").classList.toggle("show");
 });
