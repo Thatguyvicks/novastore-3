@@ -183,83 +183,140 @@ body {
   .hamburger{display:flex;}
 }
 
-.shop-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap: 2rem;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
-/* Shop container layout */
 .shop-container {
+  padding: 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
-  padding: 20px;
 }
-
-/* Product card */
-/* Product image - fixed height for all cards */
-.product-card img {
-  width: 100%;           /* full width of card */
-  height: 200px;         /* fixed height */
-  object-fit: cover;     /* crop/scale images to fill nicely */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* optional styling */
-  border-radius: 10px 10px 0 0; /* match card rounding */
-}
-
-/* Optional: uniform card layout */
-.product-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 350px;     /* ensures equal card height even if text differs */
-  background: rgba(255, 255, 255, 0.1); /* liquid glass effect */
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-
-/* Product info area (name + price + button) */
-.product-card h3,
-.product-card p {
-  margin: 10px 15px 0;
-  text-align: center;
-}
-
-.product-card .add-to-cart-btn {
-  margin: 10px 15px 15px;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background: #f5c469;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.product-card .add-to-cart-btn:hover {
-  background: #e0b256;
-}
-
 
 /* =========================
-   Search Box
+   PRODUCT CARD
 ========================= */
-.search-box {
-  position: relative;
-  transition: all 0.3s ease;
+.product-card {
+  background: #fff;
+  border: 1px solid #e1d9cf;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
+
+/* image container */
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* title */
+.product-card h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+/* price */
+.product-card p {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* push button to bottom */
+.product-card button {
+  margin-top: auto;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.add-to-cart-btn {
+  background: #d8c6b2;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-to-cart-btn:hover {
+  background: #cbb49c;
+}
+
+/* =========================
+   CART NOTIFICATION
+========================= */
+#cart-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #3b3b3b;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#cart-notification.show {
+  opacity: 1;
+}
+
+/* =========================
+   AUTH BUTTON
+========================= */
+#authFloatingBtn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #efe6da;
+  border: 1px solid #d6cfc6;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* =========================
+   MOBILE
+========================= */
+.hamburger {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .shop-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .product-card img {
+    height: 150px;
+  }
+}
+
+
+  .menu-links.show {
+    display: flex;
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .hamburger span {
+    width: 22px;
+    height: 2px;
+    background: #3b3b3b;
+  }
+
 
 .search-box input {
   padding: 0.5rem 1rem;
